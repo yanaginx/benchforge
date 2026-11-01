@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
+import { asset } from './assets.ts';
 import { loadModelFile } from './core/check.ts';
 import type { Diag } from './core/check.ts';
 import { layoutModel } from './core/layout.ts';
@@ -77,7 +78,7 @@ async function main() {
   const pos = positional().slice(2);
 
   if (cmd === 'schema') {
-    const schema = JSON.parse(fs.readFileSync(new URL('../schema/model.schema.json', import.meta.url), 'utf8'));
+    const schema = JSON.parse(asset('schema/model.schema.json'));
     const types = Object.fromEntries(Object.entries(BUILTIN).map(([k, v]) => [k, { shape: v.shape, focal: !!v.focal, ports: v.ports ?? [] }]));
     out({ schema, builtinTypes: types, compat: COMPAT }, JSON.stringify({ builtinTypes: types, compat: COMPAT }, null, 2));
     return;

@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
+import { asset } from '../assets.ts';
 import { loadModelFile } from '../core/check.ts';
 import type { Diag } from '../core/check.ts';
 import { applyOps } from '../core/edit.ts';
@@ -58,7 +59,7 @@ function readBody(req: http.IncomingMessage): Promise<string> {
 }
 
 export function startServer(opts: ServerOpts): http.Server {
-  const html = fs.readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  const html = asset('src/web/index.html');
   const send = (res: http.ServerResponse, code: number, body: unknown, type = 'application/json') => {
     res.writeHead(code, { 'content-type': type + '; charset=utf-8', 'cache-control': 'no-store' });
     res.end(typeof body === 'string' ? body : JSON.stringify(body));

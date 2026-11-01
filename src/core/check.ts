@@ -1,12 +1,13 @@
 import fs from 'node:fs';
 import { parse } from 'yaml';
+import { asset } from '../assets.ts';
 import Ajv from 'ajv';
 import type { Model } from './types.ts';
 import { buildIndex, splitEndpoint, hops } from './index.ts';
 import type { Entry } from './index.ts';
 import { COMPAT, BUILTIN, ALL_KINDS, kindDir, effPtype, twoParam, isSocketKind, knownPtypes } from './types-builtin.ts';
 
-const schema = JSON.parse(fs.readFileSync(new URL('../../schema/model.schema.json', import.meta.url), 'utf8'));
+const schema = JSON.parse(asset('schema/model.schema.json'));
 const validateShape = new Ajv({ allErrors: true }).compile(schema);
 
 export interface Diag { code: string; path: string; message: string; options?: string[] }

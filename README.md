@@ -86,6 +86,18 @@ for this project (few corners, no shared lanes, no wire through a box, bridges w
 wires must cross, dots where they join). Containers of containers flow left to right.
 Notes on the design are in `docs/`.
 
+## Single binary (no Node on the target)
+
+```
+npm install
+./scripts/build-binary.sh        # writes dist/benchforge (about 140 MB)
+dist/benchforge ui my_model.yaml
+```
+
+The binary is a copy of Node plus the program, so it only runs on the OS and CPU of the machine
+that built it. To get a Linux x86_64 binary, run the script on a Linux x86_64 machine that has
+Node 25.5 or newer (a `node:26` container works). The target needs no Node at all.
+
 ## Tests
 
 ```
