@@ -1,0 +1,64 @@
+project: axi_vip
+uvm: "1.2"
+dut:
+  name: axi_slave
+  clock: { name: aclk, period_ns: 10 }
+  reset: { name: aresetn, active: low }
+  ports:
+    - { name: awvalid, dir: in }
+    - { name: awready, dir: out }
+    - { name: awaddr, dir: in, width: 32 }
+    - { name: wdata, dir: in, width: 64 }
+root:
+  name: tb
+  type: env
+  children:
+    - name: m_agent
+      type: agent
+      children:
+        - { name: sqr, type: sequencer }
+        - { name: drv, type: driver }
+        - { name: mon, type: monitor }
+      ports:
+        - { name: ap_out, kind: analysis_port, dir: out, boundary: true }
+    - name: s_agent
+      type: agent
+      children:
+        - { name: sqr, type: sequencer }
+        - { name: drv, type: driver }
+        - { name: mon, type: monitor }
+      ports:
+        - { name: ap_out, kind: analysis_port, dir: out, boundary: true }
+    - name: sb
+      type: scoreboard
+      ports:
+        - { name: m_imp, kind: analysis_imp, dir: in }
+        - { name: s_imp, kind: analysis_imp, dir: in }
+    - name: cov
+      type: subscriber
+    - name: sub_env
+      type: env
+      children:
+        - name: agent
+          type: agent
+          children:
+            - { name: mon, type: monitor }
+          ports:
+            - { name: ap_out, kind: analysis_port, dir: out, boundary: true }
+        - name: sb
+          type: scoreboard
+          ports:
+            - { name: imp, kind: analysis_imp, dir: in }
+      ports:
+        - { name: ap_out, kind: analysis_port, dir: out, boundary: true }
+connections:
+  - { from: "tb.m_agent.drv:seq_item_port", to: "tb.m_agent.sqr:seq_item_export" }
+  - { from: tb.m_agent.mon:ap, to: tb.m_agent:ap_out }
+  - { from: tb.m_agent:ap_out, to: tb.sb:m_imp }
+  - { from: tb.s_agent.mon:ap, to: tb.s_agent:ap_out }
+  - { from: tb.s_agent:ap_out, to: tb.sb:s_imp }
+  - { from: tb.m_agent:ap_out, to: tb.cov:analysis_export }
+  - { from: tb.sub_env.agent.mon:ap, to: tb.sub_env.agent:ap_out }
+  - { from: tb.sub_env.agent:ap_out, to: tb.sub_env.sb:imp }
+  - { from: tb.sub_env.agent:ap_out, to: tb.sub_env:ap_out }
+  - { from: tb.sub_env:ap_out, to: tb.sb:s_imp }

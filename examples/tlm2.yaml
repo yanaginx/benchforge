@@ -1,0 +1,33 @@
+project: tlm2_demo
+uvm: "1.2"
+dut:
+  name: dut
+  clock: { name: clk, period_ns: 10 }
+  reset: { name: rst_n, active: low }
+  ports: []
+root:
+  name: tb
+  type: env
+  children:
+    - name: cpu
+      type: component
+      children:
+        - name: core
+          type: component
+          ports:
+            - { name: bus, kind: tlm_b_initiator_socket, dir: out }
+      ports:
+        - { name: bus_out, kind: tlm_b_initiator_socket, dir: out, boundary: true }
+    - name: mem
+      type: component
+      children:
+        - name: bank
+          type: component
+          ports:
+            - { name: tgt, kind: tlm_b_target_socket, dir: in }
+      ports:
+        - { name: tgt_in, kind: tlm_b_target_socket, dir: in, boundary: true }
+connections:
+  - { from: tb.cpu.core:bus, to: tb.cpu:bus_out }
+  - { from: tb.mem:tgt_in, to: tb.mem.bank:tgt }
+  - { from: tb.cpu:bus_out, to: tb.mem:tgt_in }

@@ -1,0 +1,228 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "benchforge model",
+  "type": "object",
+  "required": [
+    "project",
+    "root"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "project": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "uvm": {
+      "enum": [
+        "1.2",
+        "1.1d"
+      ],
+      "default": "1.2"
+    },
+    "types": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/typeDef"
+      }
+    },
+    "objects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "$ref": "#/definitions/ident" },
+          "extends": { "enum": ["uvm_object", "uvm_sequence_item"] }
+        }
+      }
+    },
+    "root": {
+      "$ref": "#/definitions/node"
+    },
+    "connections": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/conn"
+      }
+    },
+    "dut": {
+      "$ref": "#/definitions/dut"
+    }
+  },
+  "definitions": {
+    "ident": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "port": {
+      "type": "object",
+      "required": [
+        "name",
+        "kind"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/ident"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "dir": {
+          "enum": [
+            "in",
+            "out"
+          ]
+        },
+        "ptype": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*(::[A-Za-z_][A-Za-z0-9_]*)*(\\s*,\\s*[A-Za-z_][A-Za-z0-9_]*(::[A-Za-z_][A-Za-z0-9_]*)*)?$"
+        },
+        "boundary": {
+          "type": "boolean"
+        }
+      }
+    },
+    "typeDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "extends": {
+          "type": "string"
+        },
+        "shape": {
+          "enum": [
+            "leaf",
+            "container"
+          ]
+        },
+        "focal": {
+          "type": "boolean"
+        },
+        "ports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/port"
+          }
+        },
+        "template": {
+          "type": "string"
+        }
+      }
+    },
+    "node": {
+      "type": "object",
+      "required": [
+        "name",
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/ident"
+        },
+        "type": {
+          "type": "string"
+        },
+        "ports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/port"
+          }
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/node"
+          }
+        }
+      }
+    },
+    "conn": {
+      "type": "object",
+      "required": [
+        "from",
+        "to"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.]+:[A-Za-z_][A-Za-z0-9_]*$"
+        },
+        "to": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.]+:[A-Za-z_][A-Za-z0-9_]*$"
+        }
+      }
+    },
+    "dut": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/ident"
+        },
+        "clock": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "$ref": "#/definitions/ident"
+            },
+            "period_ns": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "reset": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "$ref": "#/definitions/ident"
+            },
+            "active": {
+              "enum": [
+                "low",
+                "high"
+              ]
+            }
+          }
+        },
+        "ports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "dir"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "$ref": "#/definitions/ident"
+              },
+              "dir": {
+                "enum": [
+                  "in",
+                  "out",
+                  "inout"
+                ]
+              },
+              "width": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

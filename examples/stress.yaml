@@ -1,0 +1,82 @@
+project: stress_vip
+uvm: "1.2"
+dut:
+  name: fabric
+  clock: { name: clk, period_ns: 10 }
+  reset: { name: rst_n, active: low }
+  ports:
+    - { name: valid, dir: in }
+    - { name: ready, dir: out }
+root:
+  name: tb
+  type: env
+  children:
+    - name: a0
+      type: agent
+      children:
+        - { name: sqr, type: sequencer }
+        - { name: drv, type: driver }
+        - { name: mon, type: monitor }
+      ports:
+        - { name: ap_out, kind: analysis_port, boundary: true }
+    - name: a1
+      type: agent
+      children:
+        - { name: sqr, type: sequencer }
+        - { name: drv, type: driver }
+        - { name: mon, type: monitor }
+      ports:
+        - { name: ap_out, kind: analysis_port, boundary: true }
+    - name: a2
+      type: agent
+      children:
+        - { name: sqr, type: sequencer }
+        - { name: drv, type: driver }
+        - { name: mon, type: monitor }
+      ports:
+        - { name: ap_out, kind: analysis_port, boundary: true }
+    - name: chk
+      type: env
+      children:
+        - name: sb_in
+          type: scoreboard
+          ports:
+            - { name: imp0, kind: analysis_imp, dir: in }
+            - { name: imp1, kind: analysis_imp, dir: in }
+            - { name: imp2, kind: analysis_imp, dir: in }
+        - name: sb_out
+          type: scoreboard
+          ports:
+            - { name: imp0, kind: analysis_imp, dir: in }
+            - { name: imp1, kind: analysis_imp, dir: in }
+      ports:
+        - { name: imp0_in, kind: analysis_export, boundary: true }
+        - { name: imp1_in, kind: analysis_export, boundary: true }
+        - { name: imp2_in, kind: analysis_export, boundary: true }
+        - { name: imp0_in2, kind: analysis_export, boundary: true }
+        - { name: imp1_in2, kind: analysis_export, boundary: true }
+    - { name: cov0, type: subscriber }
+    - { name: cov1, type: subscriber }
+    - { name: cov2, type: subscriber }
+connections:
+  - { from: tb.a0.drv:seq_item_port, to: tb.a0.sqr:seq_item_export }
+  - { from: tb.a1.drv:seq_item_port, to: tb.a1.sqr:seq_item_export }
+  - { from: tb.a2.drv:seq_item_port, to: tb.a2.sqr:seq_item_export }
+  - { from: tb.a0.mon:ap, to: tb.a0:ap_out }
+  - { from: tb.chk:imp0_in, to: tb.chk.sb_in:imp0 }
+  - { from: tb.a0:ap_out, to: tb.chk:imp0_in }
+  - { from: tb.a1.mon:ap, to: tb.a1:ap_out }
+  - { from: tb.chk:imp1_in, to: tb.chk.sb_in:imp1 }
+  - { from: tb.a1:ap_out, to: tb.chk:imp1_in }
+  - { from: tb.a2.mon:ap, to: tb.a2:ap_out }
+  - { from: tb.chk:imp2_in, to: tb.chk.sb_in:imp2 }
+  - { from: tb.a2:ap_out, to: tb.chk:imp2_in }
+  - { from: tb.chk:imp0_in2, to: tb.chk.sb_out:imp0 }
+  - { from: tb.a0:ap_out, to: tb.chk:imp0_in2 }
+  - { from: tb.chk:imp1_in2, to: tb.chk.sb_out:imp1 }
+  - { from: tb.a1:ap_out, to: tb.chk:imp1_in2 }
+  - { from: tb.a0:ap_out, to: tb.cov0:analysis_export }
+  - { from: tb.a1:ap_out, to: tb.cov0:analysis_export }
+  - { from: tb.a2:ap_out, to: tb.cov0:analysis_export }
+  - { from: tb.a1:ap_out, to: tb.cov1:analysis_export }
+  - { from: tb.a2:ap_out, to: tb.cov2:analysis_export }
